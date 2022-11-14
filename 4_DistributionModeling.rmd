@@ -1,0 +1,90 @@
+
+```{r}
+library(tidyverse)
+library(rgbif)
+library(dismo)
+library(conflicted)
+library(maps)
+
+conflict_prefer("select",
+                "dplyr")
+```
+
+```{r 2}
+
+# Download and Process Occurrence records 
+
+SerenoaRecords <- occ_data(scientificName = "Serenoa repens")
+
+SerenoaRecords <- SerenoaRecords$data %>%
+  select(decimalLongitude,
+         decimalLatitude)
+  
+CountyMap <- map_data("county")
+
+SerenoaRecords %>%
+  ggplot() +
+  geom_map(data = CountyMap, 
+           map = CountyMap,
+           aes(x = long, 
+               y = lat, 
+               map_id = region),
+           color = "white", 
+           fill = "lightgray", 
+           size = 0.1) +
+  geom_point(data = SerenoaRecords, 
+             mapping = aes(x = decimalLongitude,
+                           y = decimalLatitude))
+
+```
+
+```{r 3}
+
+# Download Environmental Raster Layers
+
+USAClim <- getData('worldclim', var='bio', res=2.5)
+
+BioClimListPredictors <- stack(USAClim)
+
+plot(USAClim$bio1, 
+     main = "Mean Annual Temperature")
+
+```
+
+```{r 4}
+# Extract climate at occurrences and control points
+
+OccurrenceValues <- extract(BioClimListPredictors, 
+                            SerenoaRecords)
+
+BackgroundValues <- randomPoints(BioClimListPredictors, 
+                       100)
+
+BackgroundValues <- extract(BioClimListPredictors, 
+                          BackgroundValues)
+
+DistributionModelData <- data.frame(rbind(OccurrenceValues,
+                                          BackgroundValues)) %>%
+  na.omit()
+
+
+```
+
+```{r 5}
+
+# Build the Mathematical Model 
+
+DistributionModel <- bioclim(DistributionModelData)
+
+```
+
+```{r 6}
+
+# Evaluate the Model and Pot the Result
+
+SDMPlot <- predict(BioClimListPredictors, DistributionModel)
+
+plot(SDMPlot,
+     xlim = c(-100, -60),
+     ylim = c(12, 35))
+```

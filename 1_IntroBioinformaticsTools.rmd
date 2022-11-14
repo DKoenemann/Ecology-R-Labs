@@ -1,0 +1,9 @@
+
+```{r}
+
+install.packages("tidyverse")
+install.packages("magrittr")
+install.packages("data.table")
+install.packages("rmarkdown")
+
+```

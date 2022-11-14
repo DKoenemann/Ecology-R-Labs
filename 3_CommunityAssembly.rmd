@@ -1,0 +1,217 @@
+
+```{r}
+library(tidyverse)
+library(magrittr)
+```
+
+```{r ReadData}
+
+Fungus <- read_csv("Dryad_Eldridge_Ecology.csv",
+                   col_names = TRUE) %>%
+  select(Community,
+         Site,
+         Patch,
+         Plant_Cov,
+         PlantRich,
+         pH,
+         Carbon,
+         Tracks,
+         Cow,
+         Sheep,
+         Roo,
+         Rabb,
+         ACTINO2:FungalShannons) %>%
+  rename(PercentPlantCover = Plant_Cov,
+         PlantRichness = PlantRich,
+         CowDung = Cow,
+         SheepDung = Sheep,
+         KangarooDung = Roo,
+         RabbitDung = Rabb,
+         ActinobacterialAbundance = ACTINO2,
+         AlphaproteobacterialAbundance = AlphaProteo2,
+         AscomycetesAbundance = ASCO2,
+         BasidiomycetesAbundance = BASI2) %>%
+  mutate(Community = as_factor(Community),
+         Site = as_factor(Site),
+         Patch = as_factor(Patch))
+
+Fungus %>%
+  str()
+
+```
+
+```{r Overview1}
+
+Fungus %>%
+  ggplot() +
+  geom_violin(mapping = aes(x = Patch,
+                             y = pH,
+               fill = Fungus$Patch)) +
+  facet_grid(~Community) +
+  coord_flip() +
+  labs(y = "pH",
+       x = "Community Type",
+       fill = "Patch Type",
+       title = "pH in Australian Ecological Communities")
+
+```
+```{r Overview2}
+
+Fungus %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x =  Community,
+                             y = PercentPlantCover, 
+                             fill = Fungus$Community)) + 
+  labs(y = "Percent Plant Cover",
+       x = "Community",
+       fill = "Community",
+       title = "Plant Cover in Australian Communities")
+
+```
+
+```{r Overview3}
+
+Fungus %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x =  Patch,
+                             y = PlantRichness, 
+                             fill = Fungus$Patch)) + 
+  facet_wrap(~ Community) +
+  labs(y = "Plant Richness",
+       x = "Patch",
+       fill = "Patch",
+       title = "Plant Richness in Australian Ecotypes")
+
+```
+
+```{r Exclusion1}
+
+Fungus %>%
+  ggplot() +
+  geom_point(mapping = aes(x = BasidiomycetesAbundance,
+                           y = AscomycetesAbundance,
+                           color = PlantRichness,
+                           size = PercentPlantCover)) +
+  facet_grid(Community ~ Patch) +
+  labs(y = "Ascomycetes Fungal Abundance",
+       x = "Basidiomycetes Fungal Abundance",
+       color = "Plant Richness",
+       size = "Percent Plant Cover",
+       title = "Fungal Abundance in Australian Communities")
+  
+```
+
+```{r Exclusion2}
+
+Fungus %>%
+  ggplot() +
+  geom_point(mapping = aes(x = Carbon, 
+                           y = AscomycetesAbundance),
+                           color = "blue") +
+  geom_point(mapping = aes(x = Carbon, 
+                           y = BasidiomycetesAbundance)) +
+  geom_smooth(mapping = aes(x = Carbon,
+                            y = AscomycetesAbundance),
+              color = "blue",
+              method = "lm",
+              formula = y ~ x,
+              se = FALSE) +
+  geom_smooth(mapping = aes(x = Carbon,
+                            y = BasidiomycetesAbundance),
+              color = "black",
+              method = "lm",
+              formula = y ~ x,
+              se = FALSE) +
+  labs(y = "Fungal Abundance",
+       x = "Soil Carbon",
+       title = "Release from Cometitive Exclusion")
+
+```
+
+```{r Complexity1}
+
+Fungus %>%
+  ggplot() +
+  geom_point(mapping = aes(x = PlantRichness,
+                           y = BacterialShannons)) +
+  geom_smooth(mapping = aes(x = PlantRichness,
+                            y = BacterialShannons),
+              color = "black",
+              method = "lm",
+              formula = y ~ x,
+              se = FALSE) +
+  facet_wrap(~Patch) + 
+  labs(y = "Bacterial Richness (Shannon Index)",
+       x = "Plant Richness",
+       title = "Diversity and Environmental Complexity")
+
+```
+
+```{r Complexity2}
+
+Fungus %>%
+  ggplot() +
+  geom_point(mapping = aes(x = PercentPlantCover,
+                           y = BacterialShannons)) +
+  geom_smooth(mapping = aes(x = PercentPlantCover,
+                            y = BacterialShannons),
+              color = "black",
+              method = "lm",
+              formula = y ~ x,
+              se = FALSE) +
+  facet_wrap(~Patch) + 
+  labs(y = "Bacterial Richness (Shannon Index)",
+       x = "Percent Plant Cover",
+       title = "Diversity and Environmental Complexity")
+
+```
+
+```{r Disturbance1}
+
+# Tracks by PlantCover = Intermediate disturbance promotes diversity 
+
+Fungus %>%
+  filter(Tracks < 1000) %>%
+  ggplot() +
+  geom_point(mapping = aes(x = Tracks,
+                           y = PercentPlantCover)) +
+  geom_smooth(mapping = aes(x = Tracks,
+                            y = PercentPlantCover),
+              color = "black",
+              method = "lm",
+              formula = y ~ x,
+              se = FALSE) +
+  facet_wrap(Community ~ Patch) + 
+  labs(y = "Percent Plant Cover",
+       x = "Animal Tracks",
+       title = "Disturbance and Diversity")
+
+```
+
+```{r Disturbance2}
+
+# Tracks by PlantRich = Intermediate disturbance promotes diversity 
+
+Fungus %>%
+  filter(Tracks < 1000) %>%
+  ggplot() +
+  geom_point(mapping = aes(x = Tracks,
+                           y = PlantRichness)) +
+  geom_smooth(mapping = aes(x = Tracks,
+                            y = PlantRichness),
+              color = "black",
+              method = "lm",
+              formula = y ~ x,
+              se = FALSE) +
+  facet_wrap(Community ~ Patch) + 
+  labs(y = "Plant Richness",
+       x = "Animal Tracks",
+       title = "Disturbance and Diversity")
+
+```
+
+
+
+
+
+

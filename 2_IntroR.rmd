@@ -1,0 +1,242 @@
+
+```{r}
+
+Firstobject + Secondobject
+
+thirdobject
+
+```
+
+```{r 2}
+
+library(tidyverse)
+read_csv("lab1data.csv", col_names = TRUE)
+
+```
+
+```{r 3}
+
+lab1data <- read_csv("lab1data.csv",
+                     col_names = TRUE)
+
+lab1data
+```
+
+```{r 4}
+
+library(tidyverse)
+library(magrittr)
+
+```
+
+```{r 5}
+
+read_csv("Iris.csv",
+         col_names = TRUE)
+
+```
+
+```{r 6}
+
+IrisData <- read_csv("Iris.csv",
+                     col_names = TRUE)
+
+IrisData
+```
+
+```{r 7}
+
+str(IrisData)
+
+```
+
+```{r 8}
+
+summary(IrisData)
+
+```
+
+```{r 9}
+
+IrisData %>%
+  summary()
+
+```
+
+```{r 10}
+
+IrisData %>%
+  mutate(PetalRatio = (Petal.Length / Petal.Width))
+
+```
+
+```{r 11}
+
+IrisData %>%
+  mutate(Species = as_factor(Species))
+
+```
+
+```{r 12}
+
+IrisData %>%
+  rename("SpeciesName" = "Species")
+
+```
+
+```{r 13}
+
+read_csv("Iris.csv",
+         col_names = TRUE) %>%
+  mutate(PetalRatio = (Petal.Length / Petal.Width),
+         Species = as_factor(Species)) %>%
+  rename("SpeciesName" = "Species") %>%
+  summary()
+
+```
+
+```{r 14}
+
+IrisData2 <- read_csv("Iris.csv",
+         col_names = TRUE) %>%
+  mutate(PetalRatio = (Petal.Length / Petal.Width),
+         Species = as_factor(Species)) %>%
+  rename("SpeciesName" = "Species") %>%
+  summary()
+
+IrisData2
+```
+
+```{r 15}
+
+Fungus <- read_csv("Dryad_Eldridge_Ecology.csv",
+                   col_names = TRUE) %>%
+  select(Community,
+         Site,
+         Patch,
+         Plant_Cov,
+         PlantRich,
+         pH,
+         Cow,
+         Sheep,
+         Roo,
+         Rabb,
+         ACTINO2:FungalShannons) %>%
+  rename(PercentPlantCover = Plant_Cov,
+         PlantRichness = PlantRich,
+         CowDung = Cow,
+         SheepDung = Sheep,
+         KangarooDung = Roo,
+         RabbitDung = Rabb,
+         ActinobacterialAbundance = ACTINO2,
+         AlphaproteobacterialAbundance = AlphaProteo2,
+         BacterialRichness = BacterialShannons,
+         AscomycetesAbundance = ASCO2,
+         BasidiomycetesAbundance = BASI2,
+         FungalRichness = FungalShannons) %>%
+  mutate(Community = as_factor(Community),
+         Site = as_factor(Site),
+         Patch = as_factor(Patch))
+
+Fungus %>%
+  str()
+```
+
+```{r 16}
+
+ggplot(data = Fungus,
+       mapping = aes(x = PlantRichness)) +
+  geom_histogram()
+
+```
+
+```{r 17}
+
+ggplot(data = Fungus) +
+  geom_histogram(mapping = aes(x = PlantRichness))
+
+```
+
+
+```{r 18}
+
+Fungus %>%
+  ggplot() +
+  geom_histogram(mapping = aes(x = PlantRichness))
+
+```
+
+```{r 19}
+
+Fungus %>%
+  ggplot() +
+  geom_histogram(mapping = aes(x = PlantRichness),
+                 binwidth = 2,
+                 fill = "Red",
+                 color = "Blue")
+
+```
+
+```{r 20}
+
+Fungus %>%
+  ggplot() +
+  geom_histogram(mapping = aes(x = PlantRichness),
+                 binwidth = 2,
+                 fill = "#4DA6FF",
+                 color = "Blue")
+
+```
+
+```{r 21}
+
+Fugus %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(y = FungalRichness))
+
+```
+
+```{r 22}
+
+Fungus %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x = Patch,
+                             y = FungalRichness))
+
+```
+
+```{r 23}
+
+Fungus %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x = Patch,
+                             y = FungalRichness),
+               fill = "Blue",
+               color = "Gold1")
+
+```
+
+```{r 24}
+
+Fungus %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x = Patch,
+                             y = FungalRichness,
+                             fill = Patch),
+               color = "Gold3")
+
+```
+
+```{r 25}
+
+install.packages("RColorBrewer")
+library(RColorBrewer)
+
+Fungus %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x = Patch,
+                             y = FungalRichness,
+                             fill = Patch)) +
+  scale_fill_brewer(palette = "pastel2")
+
+```
